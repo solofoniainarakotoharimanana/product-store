@@ -1,23 +1,96 @@
+
+import { toaster, Toaster } from './../components/ui/toaster'
 import { useProductStore } from '../store/product.js'
 import { Box, Button, Container, Heading, Input, VStack } from '@chakra-ui/react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+
 
 
 const CreatePage = () => {
-  const { createProduct } = useProductStore();
+  const navigate = useNavigate()
+  const { idProduct } = useParams();
+  //const [product, setProduct] = useState();
+  const { createProduct, getProduct, updateProduct } = useProductStore();
   const [newProduct, setNewProduct] = useState({
     name: "",
     price: "",
     image: ""
   }) 
 
+  if (idProduct) {
+    useEffect(() => {
+      const getOneProduct = async () => {
+        const res = await getProduct(idProduct);
+        // console.log("RES >>> ", res)
+        setNewProduct({
+          name: res.data.name,
+          price: res.data.price,
+          image: res.data.image,
+        })
+      }
+      getOneProduct();
+    }, [idProduct])
+    
+  }
+
+  const handleUpdate = async (idProduct) => {
+    console.log(" ID PRODUCT >>> ", idProduct)
+    // console.log("NEW PRODUCT >>> ", newProduct)
+    const { success, message} = await updateProduct(idProduct);
+    if (!success) {
+      toaster.create({
+        title: "Error",
+        description: `${message}`,
+        type: "error",
+        duration: 3000,
+        closable: true,
+      })
+    }
+    else {
+      toaster.create({
+        title: "Success",
+        description: `${message}`,
+        type: "success",
+        duration: 3000,
+        closable: true,
+      })
+      setNewProduct({
+        name: "",
+        price: "",
+        image: ""
+      })
+    }
+    navigate("/")
+  }
+
   const handleAddProduct = async () => {
     const { success, message } = await createProduct(newProduct);
-    setNewProduct({
-      name: "",
-      price: "",
-      image: ""
-    })
+    if (!success) {
+      toaster.create({
+        title: "Error",
+        description: `${message}`,
+        type: "error",
+        duration: 3000,
+        closable: true,
+      })
+    }
+    else {
+      toaster.create({
+        title: "Success",
+        description: `${message}`,
+        type: "success",
+        duration: 3000,
+        closable: true,
+      })
+      setNewProduct({
+        name: "",
+        price: "",
+        image: ""
+      })
+    }
+    
+    
   }
 
   return (
@@ -54,19 +127,31 @@ const CreatePage = () => {
               value={newProduct.image}
               onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
             />
-            <Button
-              w={'full'}
-              bgColor={"blue.500"}
-              color={"white"}
-              onClick={handleAddProduct}
-            >
-              Add product
-            </Button>
+            {
+              idProduct ? (
+                <Button
+                  w={'full'}
+                  bgColor={"blue.500"}
+                  color={"white"}
+                  onClick={() => handleUpdate(idProduct)}
+                >
+                  Update product
+                </Button>) : (
+                <Button
+                  w={'full'}
+                  bgColor={"blue.500"}
+                  color={"white"}
+                  onClick={handleAddProduct}
+                >
+                  Add product
+                </Button>
+            )
+            }
+            
           </VStack>
         </Box>
-
       </VStack>
-
+      <Toaster />
     </Container>
   )
 }

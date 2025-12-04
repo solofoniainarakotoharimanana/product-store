@@ -8,7 +8,7 @@ export const fetchProducts = async (req, res) => {
         res.status(200).json({
             success: true,
             data: products,
-            message: "fetch all products",
+            message: "Fetch all products",
             nbProducts: products.length
         })
     } catch (error) {
@@ -40,6 +40,7 @@ export const getProduct = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
     const { idProduct } = req.params;
+    console.log("PRO ID >>> ", req.body)
     const product = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(idProduct)) {
@@ -50,12 +51,15 @@ export const updateProduct = async (req, res) => {
     }
 
     try {
+        
         const updatedproduct = await Product.findByIdAndUpdate(idProduct, product, { new: true });
+        
         res.status(201).json({
             success: true,
             data: updatedproduct,
             message: "update product successfully"
         })
+        
     } catch (error) {
         console.log("Error in update product ", error.message)
         res.status(500).json({

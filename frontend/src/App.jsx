@@ -17,7 +17,7 @@ function App() {
       <NavBar />
       <Routes>
         <Route path='/' element={<HomePage />} />
-        <Route path='/create' element={<CreatePage />} />
+        <Route path='/create/:idProduct?' element={<CreatePage />} />
       </Routes>
     </Box>
   )
